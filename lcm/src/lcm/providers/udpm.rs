@@ -8,8 +8,8 @@ use std::borrow::Borrow;
 use url::Url;
 use byteorder::{ByteOrder, NetworkEndian, WriteBytesExt};
 
-use lcm::{MAX_MESSAGE_SIZE, TrampolineError, SubscribeMsg};
-use error::*;
+use crate::lcm::{MAX_MESSAGE_SIZE, TrampolineError, SubscribeMsg};
+use crate::error::*;
 
 /// LCM's magic number for short messages.
 const SHORT_HEADER_MAGIC: u32 = 0x4C43_3032;

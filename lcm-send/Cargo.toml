@@ -1,0 +1,9 @@
+[package]
+name = "lcm-send"
+version = "0.1.0"
+authors = ["Griffin Obeid <griffobeid@gmail.com>"]
+edition = "2021"
+
+[dependencies]
+env_logger = "0.9"
+lcm = { path = "../lcm" }

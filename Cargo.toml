@@ -3,5 +3,7 @@ members = [
   "lcm",
   "lcm-gen",
   "lcm-derive",
+  "lcm-send",
+  "lcm-subscribe",
   "tests",
 ]

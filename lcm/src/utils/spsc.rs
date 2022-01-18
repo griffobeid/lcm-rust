@@ -1,7 +1,8 @@
 use std::cell::Cell;
 use std::sync::Arc;
-use std::sync::atomic::{spin_loop_hint, AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::{mem, ptr};
+use std::hint::spin_loop;
 
 /// Creates a new asynchronous channel, returning the sender/receiver halves.
 ///
@@ -191,7 +192,7 @@ impl<T> RingBuffer<T> {
             // Make sure that the data we loaded was actually valid and, if it was,
             // increment the head
             if self.head
-                .compare_and_swap(head, head.wrapping_add(1), Ordering::Release)
+                .compare_exchange(head, head.wrapping_add(1), Ordering::Release, Ordering::Relaxed).unwrap()
                 == head
             {
                 return Some(val);
@@ -204,7 +205,7 @@ impl<T> RingBuffer<T> {
             0,
             "recursive giveup"
         );
-        self.giveup_lock.store(1, Ordering::Acquire);
+        self.giveup_lock.store(1, Ordering::Relaxed);
         let val = self.pop();
         self.giveup_lock.store(0, Ordering::Release);
         assert!(val.is_some(), "gave up on an empty queue"); // Curious to see this ever happen
@@ -235,14 +236,14 @@ impl<T> RingBuffer<T> {
                 while self.giveup_lock.load(Ordering::Acquire) != 0 {
                     // On x86 this is the PAUSE instruction. I am not
                     // 100% sure this should be here.
-                    spin_loop_hint();
+                    spin_loop();
                 }
 
                 // Try to move the head up one
                 let head = self.shadow_head.get();
                 let old_head =
                     self.head
-                        .compare_and_swap(head, head.wrapping_add(1), Ordering::Release);
+                        .compare_exchange(head, head.wrapping_add(1), Ordering::Release, Ordering::Relaxed).unwrap();
 
                 if head != old_head {
                     // The consumer managed to pop at least one value
