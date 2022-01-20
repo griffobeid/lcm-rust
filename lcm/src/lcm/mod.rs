@@ -153,15 +153,12 @@ impl<'a> Lcm<'a> {
         };
 
         let callback_fn = move || {
-            debug!("Inside callback");
             // We can't loop forever because they might be filling up faster
             // than we can process them. So we're only going to read a number
             // equal to the size of the queue. This seems like it would be the
             // least surprising behavior for the user.
             for _ in 0..rx.capacity() {
-                debug!("Inside callback for");
                 if let Some((chan, m)) = rx.recv() {
-                    debug!("Executing callback");
                     callback(&chan, m);
                 } else {
                     break;

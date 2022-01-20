@@ -1,5 +1,3 @@
-use std::{thread::sleep, time::Duration};
-
 use lcm::{Lcm, Message};
 
 #[derive(Clone, Debug, Message)]
@@ -26,6 +24,6 @@ fn main() {
     )
     .expect("Failed to subscribe to POSE");
     loop {
-        sleep(Duration::from_micros(100));
+        lcm.handle().unwrap();
     }
 }
